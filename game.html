@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Title</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="game.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-center">
+                    <h1>Game</h1>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div>
+                    <h4 id="encounter" class="text-danger text-center"></h4>
+                    <hr />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="align-right">
+                            <button type="button" name="" id="advance" class="btn btn-info btn-lg" title="Advance forward">&#8679</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 bg-light">
+                <div id="screen">                       <!--  "screen"  -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div>
+                                <h4 id="attackString"></h4>
+                                <img id="monsterPic" src="https://www.muralswallpaper.com/app/uploads/misty-forest-scene-plain-820x532.jpg" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-md-4 bg-primary text-center">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="bg-white">
+                            <div class="row">
+                                <div class="col-12">
+                                    STR
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <span class="badge badge-warning bg-warning">5</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+
+                                <div class="bg-white tip">
+                                    <br />
+                                    <button type="button" class="btn btn-sm btn-outline-warning">+</button>
+                                    <br />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="bg-white">
+                            <div class="row">
+                                <div class="col-12">
+                                    STA
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <span class="badge badge-secondary bg-secondary">5</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="bg-white tip">
+                                    <br />
+                                    <button type="button" class="btn btn-sm btn-outline-secondary">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="bg-white">
+                            <div class="row">
+                                <div class="col-12">
+                                    WIS
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <span class="badge badge-success bg-success">5</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="bg-white tip">
+                                    <br />
+                                    <button type="button" class="btn btn-sm btn-outline-success">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="bg-white">
+                            <div class="row">
+                                <div class="col-12">
+                                    AGI
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <span class="badge badge-danger bg-danger">5</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="tip">
+                                    <br />
+                                    <button type="button" class="btn btn-sm btn-outline-danger">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-4 offset-4">
+                <div>
+                    <button type="button" class="btn btn-warning">Attack</button>
+                    <button type="button" class="btn btn-secondary">Defend</button>
+                    <button type="button" class="btn btn-success">Heal</button>
+                    <button type="button" class="btn btn-danger">Run</button>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+    </div>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+    </script>
+    <script src="game.js"></script>
+</body>
+
+</html>

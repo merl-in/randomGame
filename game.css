@@ -1,0 +1,14 @@
+#screen {
+    min-height: 200px;
+
+}
+#monsterPic {
+    width: 100%;
+}
+.tip {
+    background-color: white;
+
+    padding: 10px;
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
+}
