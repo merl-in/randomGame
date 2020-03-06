@@ -18,7 +18,9 @@ var heroLevel = document.getElementById('heroLevel');
 var heroPoints = document.getElementById('heroPoints');
 var youHave = document.getElementById('youHave');
 var toSpend = document.getElementById('toSpend');
-
+var plusBtn = document.querySelectorAll('.plusBtn');
+var addSTR = document.getElementById('addSTR');
+var levelup = document.getElementById('levelup');
 //  ---------------------------------------------- ARRAYS for 'encounter' string ----------------------------------------
 var enemy = ["giant", "troll", "witch", "orc warrior", "goblin spearman", "bandit", "skeleton archer"];
 var foundYou = [" watching as you emerge from the undergrowth!", " rustling in the bushes!", " laughing at you from the shadows!", " running from behind!", " approaching!", " lumbering towards you slowly!"];
@@ -113,6 +115,102 @@ var critHit = normalHit * 2.5; // damage ratio for critical hit on mob
 
 var currentXp = 0; //number for the XPbar parsing needs a "%" for the style.width MAX = 100
 
+function plusBtnEnable() {
+
+    for (i = 0; i < plusBtn.length; i++) {
+        plusBtn[i].disabled = false;
+    }
+}
+
+function addStrength() {
+    hero.str += 1;
+    strength.innerText = hero.str;
+    hero.points -= 1;
+    if (hero.points == 0)
+        plusBtnDisable();
+    youHave.innerText = "";
+    heroPoints.innerText = "";
+    toSpend.innerText = "";
+    console.log(hero.str);
+}
+
+function addStamina() {
+    hero.sta += 1;
+    stamina.innerText = hero.sta;
+    hero.points -= 1;
+    if (hero.points == 0)
+        plusBtnDisable();
+    youHave.innerText = "";
+    heroPoints.innerText = "";
+    toSpend.innerText = "";
+    console.log(hero.sta);
+}
+
+function addWisdom() {
+    hero.wis += 1;
+    wisdom.innerText = hero.wis;
+    hero.points -= 1;
+    if (hero.points == 0)
+        plusBtnDisable();
+    youHave.innerText = "";
+    heroPoints.innerText = "";
+    toSpend.innerText = "";
+    console.log(hero.wis);
+}
+
+function addAgility() {
+    hero.agi += 1;
+    agility.innerText = hero.agi;
+    hero.points -= 1;
+    if (hero.points == 0)
+        plusBtnDisable();
+    youHave.innerText = "";
+    heroPoints.innerText = "";
+    toSpend.innerText = "";
+    console.log(hero.agi);
+}
+
+function plusBtnDisable() {
+
+    for (i = 0; i < plusBtn.length; i++) {
+        plusBtn[i].disabled = true;
+    }
+}
+
+
+function lvlBlink() {
+    levelup.innerText = "LEVEL UP!";
+    levelup.style.color = "red";
+    setTimeout(function () {
+        levelup.style.color = "orange"
+    }, 500);
+    setTimeout(function () {
+        levelup.style.color = "white"
+    }, 1000);
+    setTimeout(function () {
+        levelup.innerText = "Congratulations!"
+    }, 1500);
+    setTimeout(function () {
+        levelup.innerText = "LEVEL UP!"
+    }, 2500);
+    setTimeout(function () {
+        levelup.style.color = "red"
+    }, 3000);
+    setTimeout(function () {
+        levelup.style.color = "orange"
+    }, 3500);
+    setTimeout(function () {
+        levelup.style.color = "white"
+    }, 4000);
+    setTimeout(function () {
+        levelup.innerText = "Spend points to improve your stats"
+    }, 4500);
+    setTimeout(function () {
+        levelup.innerText = ""
+    }, 6500);
+}
+
+
 
 function getReward(mob) {
     var mobXP = mob.reward + (mob.reward / hero.level);
@@ -121,8 +219,10 @@ function getReward(mob) {
     xpBar.style.width = currentXp + "%";
     if (currentXp >= 100) {
         hero.level += 1;
+        lvlBlink(); // level up text flash
         heroLevel.innerText = " Lvl" + hero.level;
         hero.points += 1;
+        plusBtnEnable(); // "+" buttons are enabled on gaining a point
         if (hero.points >= 2) {
             heroPoints.innerText = hero.points + " hero points to spend!";
         } else {
@@ -131,7 +231,7 @@ function getReward(mob) {
         currentXp = currentXp - 100; // percentage of remaining xp after reset
         xpBar.style.width = currentXp + "%";
     }
-    
+
 }
 
 function onMobDeath(currentBeast) {
@@ -163,9 +263,13 @@ function onMobDeath(currentBeast) {
 function firstAid() { //heal button function
     hpValue += healPercent;
     hero.health += (hero.wis * 5);
-
+    
     if (hpValue >= 100) hpValue = 100;
-    if (hero.health >= hero.sta * 20) hero.health = hero.sta * 20;
+    if (hero.health >= hero.sta * 20) {
+        hero.health = hero.sta * 20;
+        heal.disabled = true;
+        
+    }
     healthBar.innerText = Math.round(hpValue) + "%";
     healthBar.style.width = hpValue + "%";
     console.log(currentBeast);
@@ -196,13 +300,13 @@ var dodgeChance = baseHitChance;
 var critChance = baseCrit;
 
 function hitChance() { //changes the base values of hit and crit depending on the current enemy
-    var extraCrit = (hero.agi - giant.agi) // gives 1% crit increase for each agi point higher than mob 
+    var extraCrit = (hero.agi - eval(currentBeast).agi) // gives 1% crit increase for each agi point higher than mob 
     var result1 = extraCrit * 5; //for every point above the enemy's agi gives 5 percent more chance to hit on a base of 75% and 1% extra crit
 
     if (result1 <= 0) {
         result1 = 0;
     }
-    var result2 = (giant.agi - hero.agi) * 5;
+    var result2 = (eval(currentBeast) - hero.agi) * 5;
     if (result2 <= 0) {
         result2 = 0;
     }
@@ -215,19 +319,23 @@ function hitChance() { //changes the base values of hit and crit depending on th
     if (baseHitChance >= 100) {
         baseHitChance = 100;
     }
-    /* console.log('result1 is => '+result1);
-     console.log('result2 is => '+result2);
-     console.log('base crit is now => '+baseCrit);
-     console.log('base hit chance is now => '+baseHitChance);
-     */
+}
+
+
+function onButtonPress() {
+    attack.disabled = true; //attack button disabled after press immediately
+    setTimeout(function () {attack.disabled = false;}, delay); //attack button enabled after a timeout based off hero.agi
+    
 }
 
 function swing() {
+   
     hitChance();
     unique();
+
     if (getRandom100 >= critChance) {
         console.log("You got a critical strike, on the " + "beast" + "!!");
-        console.log(critHit + " damage!")
+        console.log((hero.str * 5) * 2.5 + " damage!")
         eval(currentBeast).health -= critHit; // <-------------------------------------- CRITICAL damage to current mob's health
         console.log("Rolling... " + getRandom100);
         console.log('current crit chance % => ' + (100 - baseCrit));
@@ -245,9 +353,9 @@ function swing() {
         console.log("Rolling... " + getRandom100);
 
     } else {
-        eval(currentBeast).health -= normalHit; // <-------------------------------------NORMAL damage to current mob's health
-        console.log("You hit the " + "beast");
-        console.log(normalHit + " damage!"); //add normal hit function
+        eval(currentBeast).health -= hero.str * 5; // <-------------------------------------NORMAL damage to current mob's health
+        console.log("You hit the " + currentBeast);
+        console.log(hero.str * 5 + " damage!"); //add normal hit function
         console.log("Rolling... " + getRandom100);
 
         if (eval(currentBeast).health <= 0) { // <------------------------------------- if mob is killed by NORMAL damage, then---v
@@ -256,16 +364,26 @@ function swing() {
             monsterPic.src = "https://easydrawingguides.com/wp-content/uploads/2018/11/Tombstone-10.png"; // displays a gravestone in place of the mob
             attack.disabled = true; // disables 'Attack' button AFTER mob dies
             defend.disabled = true; // disables 'Defend' button AFTER mob dies
-            heal.disabled = true; // disables 'Heal' button AFTER mob dies
+
             run.disabled = true; // disables 'Run' button AFTER mob dies
 
 
 
         }
     }
+    attack.disabled = true; //disables 'Attack' button on tap
+    if (eval(currentBeast).health !== 0) {
+        setTimeout(function () {
+            attack.disabled = false;
+        }, delay(hero)); //delays 'Attack' button's reuse
+    } 
 }
 
+function mobAttack(){
+    
+}
 
+/*
 function swingConnect() {
     var xpGain = Math.floor((xpValue() / expThreshold) * 100); //(69 / 90)*100 = 76.66666 floor gives 76
     hero.exp += Math.floor(((5 / expThreshold) * 100));
@@ -288,18 +406,11 @@ function swingConnect() {
             
             encounterFunc()
             attack.disabled = false;
-        }*/
-    }
-    levelUp();
-
-
-    console.log('current beast => ' + currentBeast);
-    console.log('beast current health => ' + eval(currentBeast).health);
-    console.log('current experience => ' + currentXp);
-    console.log('current hero exp in object => ' + hero.exp)
-    console.log("hero points? => " + hero.points);
+        }
+    //}
+    
 }
-
+*/
 
 
 
@@ -308,48 +419,58 @@ function healing(enemy) {
     return enemy.wis * 5
 }
 
-function delay(enemy) {
-    return 10000 / enemy.agi
+function delay(hero) {
+    return 10000 / hero.agi
 }
 
-function dodge(enemy, hero) {
-    return (enemy.agi - (hero.agi - enemy.agi)) * 5
-}
 
 let currentBeast = "test";
 
 
 
-
+var oldBeast = 0;
 
 function encounterFunc() {
-    attack.disabled = false; // ENABLES all ACTION buttons when button is clicked
+    
+    attack.disabled = false; // ENABLES ACTION buttons when button is clicked EXCEPT RESTORE/HEAL until (added later) hero is damaged
     defend.disabled = false;
-    heal.disabled = false;
+    
+
     run.disabled = false;
+
+    console.log(hero.str);
+
     encounter.innerText = "A" + adjective[getRandom(0, 6)] + enemy[getRandom(0, 6)] + " is" + foundYou[getRandom(0, 5)];
     if (encounter.innerText.includes("giant")) {
         monsterPic.src = 'https://i.pinimg.com/originals/3d/61/50/3d6150af11ad32eac0b274ef3a16ace8.jpg';
         currentBeast = "giant";
+        if (oldBeast == "giant") encounterFunc();
     } else if (encounter.innerText.includes("troll")) {
         monsterPic.src = 'https://reliablyuncomfortable.files.wordpress.com/2017/02/bridge-troll.png?w=584';
         currentBeast = "troll";
+        if (oldBeast == "troll") encounterFunc();
     } else if (encounter.innerText.includes("witch")) {
         monsterPic.src = 'https://gregcartmell.com/wp-content/uploads/2017/10/the-lost-witch.jpg';
         currentBeast = "witch";
+        if (oldBeast == "witch") encounterFunc();
     } else if (encounter.innerText.includes("orc warrior")) {
         monsterPic.src = 'https://fantasyinmotion.files.wordpress.com/2013/09/492_max.jpg';
         currentBeast = "orc";
+        if (oldBeast == "orc") encounterFunc();
     } else if (encounter.innerText.includes("goblin spearman")) {
         monsterPic.src = 'https://i.redd.it/8hkw7l00kcg21.jpg';
         currentBeast = "goblin";
+        if (oldBeast == "goblin") encounterFunc();
     } else if (encounter.innerText.includes("bandit")) {
         monsterPic.src = 'https://i.pinimg.com/originals/c6/42/3c/c6423c37fb819522413e7aefdc58ee87.jpg';
         currentBeast = "bandit";
+        if (oldBeast == "bandit") encounterFunc();
     } else {
         monsterPic.src = 'https://whfb.lexicanum.com/mediawiki/images/thumb/2/2c/Warhammer_Tomb_Kings_Skeletal_Archers.png/300px-Warhammer_Tomb_Kings_Skeletal_Archers.png';
         currentBeast = "archer";
+        if (oldBeast == "archer") encounterFunc();
     }
+    oldBeast = currentBeast;
 
 }
 //run.addEventListener("click", xpValue); // currently links run button to xp result for current mob
@@ -357,6 +478,10 @@ attack.addEventListener("click", swing); //currently links attack button to dire
 defend.addEventListener("click", heroGotHit); // damages hero's health and healthbar
 heal.addEventListener("click", firstAid); // Heal button action on progressbar
 advance.addEventListener("click", encounterFunc); //clicking advance generates random encounter
+addSTR.addEventListener("click", addStrength); //click the "+" below STR to add a strength point to hero and update the corresponding badge
+addSTA.addEventListener("click", addStamina);
+addWIS.addEventListener("click", addWisdom);
+addAGI.addEventListener("click", addAgility);
 
 function getRandom(min, max) { // creates a random number betwen min and max
     return Math.floor(Math.random() * (max - min + 1) + min);
