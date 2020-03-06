@@ -35,43 +35,50 @@ var giant = {
     str: 10,
     sta: 10,
     wis: 2,
-    agi: 2
+    agi: 2,
+    reward: 75
 };
 var troll = {
     str: 6,
     sta: 7,
     wis: 4,
-    agi: 5
+    agi: 5,
+    reward: 55
 };
 var witch = {
     str: 3,
     sta: 3,
     wis: 6,
-    agi: 5
+    agi: 5,
+    reward: 35
 };
 var orc = {
     str: 6,
     sta: 6,
     wis: 3,
-    agi: 7
+    agi: 7,
+    reward: 45
 };
 var goblin = {
     str: 3,
     sta: 2,
     wis: 4,
-    agi: 9
+    agi: 9,
+    reward: 25
 };
 var bandit = {
     str: 5,
     sta: 4,
     wis: 3,
-    agi: 6
+    agi: 6,
+    reward: 30
 };
 var archer = {
     str: 2,
     sta: 3,
     wis: 6,
-    agi: 8
+    agi: 8,
+    reward: 35
 };
 
 // ---------------------------------------------- Additional PROPERTIES --------------------------------------------------
@@ -104,48 +111,54 @@ var expThreshold = (heroSkillTotal * 4) + ((hero.level / 2) * heroSkillTotal);
 var normalHit = hero.str * 5; // damage ratio for normal hit on mob
 var critHit = normalHit * 2.5; // damage ratio for critical hit on mob
 
+var currentXp = 0; //number for the XPbar parsing needs a "%" for the style.width MAX = 100
 
 
-function onMobDeath() {
-
-}
-
-function xpValue() {
-    var mobSum = 0;
-    var heroSum = 0;
-    var mob = eval(currentBeast);
-    mobSum += mob.str + mob.sta + mob.wis + mob.agi;
-    heroSum += hero.str + hero.sta + hero.wis + hero.agi;
-    var bonus = (mobSum - heroSum);
-    if (bonus <= 1) bonus = 1;
-    return mobSum * bonus;
-}
-
-
-
-
-
-function levelUp() { //checks to see if xp exceeds threshold and gives a level if necessary
-    var levelCheck = expThreshold - currentXp; //90 - current xp
-    if (levelCheck <= 0) {
+function getReward(mob) {
+    var mobXP = mob.reward + (mob.reward / hero.level);
+    hero.exp += mobXP;
+    currentXp += (mobXP / 120) * 100;
+    xpBar.style.width = currentXp + "%";
+    if (currentXp >= 100) {
         hero.level += 1;
-        hero.points += 1;
         heroLevel.innerText = " Lvl" + hero.level;
+        hero.points += 1;
         if (hero.points >= 2) {
             heroPoints.innerText = hero.points + " hero points to spend!";
         } else {
             heroPoints.innerText = hero.points + " hero point to spend!";
         }
-    }
-    if (currentXp >= expThreshold) {
-        var difference = currentXp - expThreshold;
-        currentXp = 0 + difference;
+        currentXp = currentXp - 100; // percentage of remaining xp after reset
         xpBar.style.width = currentXp + "%";
     }
+    
 }
-/*
- */
 
+function onMobDeath(currentBeast) {
+    switch (currentBeast) {
+        case giant:
+            getReward(giant);
+            break;
+        case troll:
+            getReward(troll);
+            break;
+        case witch:
+            getReward(witch);
+            break;
+        case orc:
+            getReward(orc);
+            break;
+        case goblin:
+            getReward(goblin);
+            break;
+        case bandit:
+            getReward(bandit);
+            break;
+        case archer:
+            getReward(archer);
+            break;
+    }
+}
 
 function firstAid() { //heal button function
     hpValue += healPercent;
@@ -209,9 +222,6 @@ function hitChance() { //changes the base values of hit and crit depending on th
      */
 }
 
-console.log('current miss chance % => '+baseHitChance);
-console.log('current crit chance % => '+(100-baseCrit));
-
 function swing() {
     hitChance();
     unique();
@@ -220,9 +230,10 @@ function swing() {
         console.log(critHit + " damage!")
         eval(currentBeast).health -= critHit; // <-------------------------------------- CRITICAL damage to current mob's health
         console.log("Rolling... " + getRandom100);
-        console.log('current crit chance % => '+(100-baseCrit));
+        console.log('current crit chance % => ' + (100 - baseCrit));
         if (eval(currentBeast).health <= 0) { // <------------------------------------- if mob is killed by CRITICAL damage, then---v
             encounter.innerText = "You have slain the " + currentBeast + "!";
+            onMobDeath(eval(currentBeast));
             monsterPic.src = "https://easydrawingguides.com/wp-content/uploads/2018/11/Tombstone-10.png"; // displays a gravestone in place of the mob
             attack.disabled = true; // disables 'Attack' button AFTER mob dies
             defend.disabled = true; // disables 'Defend' button AFTER mob dies
@@ -232,15 +243,16 @@ function swing() {
     } else if (getRandom100 <= dodgeChance) {
         console.log("You swung and missed..");
         console.log("Rolling... " + getRandom100);
-        console.log('current miss chance % => '+baseHitChance);
+
     } else {
         eval(currentBeast).health -= normalHit; // <-------------------------------------NORMAL damage to current mob's health
         console.log("You hit the " + "beast");
         console.log(normalHit + " damage!"); //add normal hit function
         console.log("Rolling... " + getRandom100);
-        console.log('current miss chance % => '+baseHitChance);
+
         if (eval(currentBeast).health <= 0) { // <------------------------------------- if mob is killed by NORMAL damage, then---v
             encounter.innerText = "You have slain the " + currentBeast + "!";
+            onMobDeath(eval(currentBeast));
             monsterPic.src = "https://easydrawingguides.com/wp-content/uploads/2018/11/Tombstone-10.png"; // displays a gravestone in place of the mob
             attack.disabled = true; // disables 'Attack' button AFTER mob dies
             defend.disabled = true; // disables 'Defend' button AFTER mob dies
@@ -248,11 +260,11 @@ function swing() {
             run.disabled = true; // disables 'Run' button AFTER mob dies
 
 
-            console.log("Rolling... " + getRandom100);
+
         }
     }
 }
-var currentXp = 0;
+
 
 function swingConnect() {
     var xpGain = Math.floor((xpValue() / expThreshold) * 100); //(69 / 90)*100 = 76.66666 floor gives 76
@@ -340,7 +352,7 @@ function encounterFunc() {
     }
 
 }
-run.addEventListener("click", xpValue); // currently links run button to xp result for current mob
+//run.addEventListener("click", xpValue); // currently links run button to xp result for current mob
 attack.addEventListener("click", swing); //currently links attack button to direct monster hit and damage
 defend.addEventListener("click", heroGotHit); // damages hero's health and healthbar
 heal.addEventListener("click", firstAid); // Heal button action on progressbar
