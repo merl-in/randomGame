@@ -18,7 +18,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="text-center">
-                    <h1>Game</h1>
+                    <h1>Survive</h1>
                 </div>
             </div>
         </div>
@@ -47,6 +47,8 @@
                             <div>
                                 <h4 id="attackString"></h4>
                                 <img id="monsterPic" class="img-fluid" src="https://www.muralswallpaper.com/app/uploads/misty-forest-scene-plain-820x532.jpg" />
+                                <span id="indicator" class="bg-dark rounded-circle"><span id="beforeMobHealth" class="font-weight-bold text-light"></span><span id="mobHealth" class="text-warning font-weight-bold"></span><span id="mobHealth2" class="text-light font-weight-bold"></span></span>
+                                
                             </div>
                         </div>
                     </div>
@@ -141,7 +143,7 @@
                             <div class="col-12">
                                 <div class="tip">
                                     
-                                    <button type="button" id="addAGI" class="plusBtn btn btn-sm btn-outline-danger" title="AGILITY improves hero's attack swing time, dodge, accuracy and the ability to make a clean escape" disabled>+</button>
+                                    <button type="button" id="addAGI" class="plusBtn btn btn-sm btn-outline-danger" title="AGILITY improves hero's attack swing time, dodge, accuracy, crit chance and the ability to make a clean escape" disabled>+</button>
                                 </div>
                             </div>
                         </div>
@@ -188,7 +190,7 @@
         </div>
         <hr />
         <div class="row">
-            <div class="col-md-4 offset-4">
+            <div class="col-md-8 offset-4">
                 <div>
                     
                     <button id="attack" type="button" class="btn btn-warning" disabled>Attack</button>
@@ -198,6 +200,18 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-8 offset-4">
+                <div id="stringBox"  style="overflow-y:auto;">
+                    
+                    <p id="stringText"></p>
+                    
+                    
+                </div>
+            </div>
+        </div>
+
+        
 
 
 
