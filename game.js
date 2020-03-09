@@ -34,7 +34,7 @@ var adjective = [" disgusting ", "n evil ", " wicked ", "n ugly ", " menacing ",
 var hero = {
     str: 5,
     sta: 5,
-    wis: 5,
+    wis: 8,
     agi: 5
 };
 var giant = {
@@ -84,7 +84,7 @@ var bandit = {
     agi: 6,
     reward: 30,
     maxhealth: 80
-    
+
 };
 var archer = {
     str: 2,
@@ -145,7 +145,7 @@ function addStrength() {
     } else {
         heroPoints.innerText = hero.points + " hero point to spend!";
     }
-    if (hero.points == 0){
+    if (hero.points == 0) {
         plusBtnDisable();
         youHave.innerText = "";
         heroPoints.innerText = "";
@@ -163,7 +163,7 @@ function addStamina() {
     } else {
         heroPoints.innerText = hero.points + " hero point to spend!";
     }
-    if (hero.points == 0){
+    if (hero.points == 0) {
         plusBtnDisable();
         youHave.innerText = "";
         heroPoints.innerText = "";
@@ -181,7 +181,7 @@ function addWisdom() {
     } else {
         heroPoints.innerText = hero.points + " hero point to spend!";
     }
-    if (hero.points == 0){
+    if (hero.points == 0) {
         plusBtnDisable();
         youHave.innerText = "";
         heroPoints.innerText = "";
@@ -199,13 +199,13 @@ function addAgility() {
     } else {
         heroPoints.innerText = hero.points + " hero point to spend!";
     }
-    if (hero.points == 0){
+    if (hero.points == 0) {
         plusBtnDisable();
         youHave.innerText = "";
         heroPoints.innerText = "";
         toSpend.innerText = "";
     }
-    
+
 }
 
 function plusBtnDisable() {
@@ -298,82 +298,118 @@ function onMobDeath(currentBeast) {
     }
 }
 
-function firstAid() { //heal button function
-    hpValue += healPercent;
-    hero.health += (hero.wis * 5);
-    
-    if (hpValue >= 100) hpValue = 100;
-    if (hero.health == hero.sta * 20) { // if hero health is full heal will be disabled
-        hero.health = hero.sta * 20;
-        heal.disabled = true;
-    }
-      
-    
-        
-    
-    healthBar.innerText = Math.round(hpValue) + "%";
-    healthBar.style.width = hpValue + "%";
+
+
+var activeHealth;
+
+
+var _i=0;
+var timer=5;
+
+function reset_i(){
+    _i = 0
 }
 
-function mobAttackLoop(){
-    if(hero.health>0){      //mob will attack as long as hero is alive
-        setTimeout(mobAttack,  10000 / eval(currentBeast).agi);
-        console.log(10000 / eval(currentBeast).agi)
-    }
-    if (eval(currentBeast).health <=0){
-        console.log(currentBeast+" died..")
-    }
-}
+function healUp(){
+    var healIncreasePercent = (((hero.wis * 2.5) / (hero.sta * 20)) * 100);
+    if (activeHealth <= ((hero.sta * 20) - hero.wis * 2.5)) {
+        activeHealth += healIncreasePercent;
+        console.log("active health =>> "+activeHealth);
+        if (activeHealth >= 100) {
+            activeHealth = 100;
+            console.log(activeHealth)
+        }
+        activeHealth = (hero.health / (hero.sta * 20)) * 100;
+        healthBar.innerText = Math.round(activeHealth) + "%";
+        healthBar.style.width = Math.round(activeHealth) + "%";
+        console.log("healed for " + hero.wis * 2.5);
 
-function mobAttack(){
-    if (eval(currentBeast).health <= 0) return;
-    stringText.innerText += ('\nThe '+currentBeast+' swings at you..');
-   var result = 25+((hero.agi*5)-(eval(currentBeast).agi*5)); //mob needs to roll above this result to hit hero the higher the harder
-    if (result <= 0)result = 0;
-    if (getRandom(0, 100) > result){
+        hero.health += hero.wis * 2.5;
+        if (hero.health >= hero.sta * 20) {
+            hero.health = hero.sta * 20;
+        }
         
-
         
-
-        stringText.innerText += ('\nThe '+currentBeast+' hit you for '+eval(currentBeast).str*5+" damage!");
-        heroGotHit();
-        console.log('Rolled a '+getRandom(0, 100));
-        console.log('hit must be higher than '+result);
+        
+    }
+    _i++;
+    console.log('counter',_i);
+    console.log("heal % => "+healIncreasePercent);
+    if(_i <timer){
+        setTimeout(healUp,500);
     } else {
-        stringText.innerText += ("\nYou dodged the "+currentBeast+"\'s attack");
-        console.log('Rolled a '+getRandom(0, 100));
+        clearTimeout(healUp);
+        reset_i();
+
     }
-    if (eval(currentBeast).health > 0){
+}
+
+
+
+
+
+
+
+
+
+function mobAttackLoop() {
+    if (hero.health > 0) { //mob will attack as long as hero is alive
+        setTimeout(mobAttack, 10000 / eval(currentBeast).agi);
+
+    }
+    if (eval(currentBeast).health <= 0) {
+        console.log(currentBeast + " died..");
+        return;
+    }
+}
+
+function mobAttack() {
+    if (eval(currentBeast).health <= 0) return;
+    stringText.innerText += ('\nThe ' + currentBeast + ' swings at you..');
+    var result = 25 + ((hero.agi * 5) - (eval(currentBeast).agi * 5)); //mob needs to roll above this result to hit hero the higher the harder
+    if (result <= 0) result = 0;
+    if (getRandom(0, 100) > result) {
+
+
+
+
+        stringText.innerText += ('\nThe ' + currentBeast + ' hit you for ' + eval(currentBeast).str * 5 + " damage!");
+        heroGotHit();
+
+    } else {
+        stringText.innerText += ("\nYou dodged the " + currentBeast + "\'s attack");
+
+    }
+    if (eval(currentBeast).health > 0) {
         mobAttackLoop()
     }
 
-    
-    
+
+
 }
 
 
 
 function heroGotHit() {
-    
-    var dmgPercent = ((eval(currentBeast).str * 5) / (hero.health)) * 100;
-    hpValue -= dmgPercent;
+
     hero.health -= eval(currentBeast).str * 5;
+    activeHealth = (hero.health / (hero.sta * 20)) * 100;
     heal.disabled = false;
-    
-    if (hpValue <= 0) hpValue = 0; //keep it over 0%
+
+    if (activeHealth <= 0) activeHealth = 0; //keep it over 0%
     if (hero.health <= 0) {
         hero.health = 0;
         heroDead();
     }
-    healthBar.innerText = Math.round(hpValue) + "%";
-    healthBar.style.width = hpValue + "%";
+    healthBar.innerText = Math.round(activeHealth) + "%";
+    healthBar.style.width = Math.round(activeHealth) + "%";
 
 
-    console.log('hero\'s health is '+hero.health);
+    console.log('hero\'s health is ' + hero.health);
 }
 
-function heroDead(){
-    encounter.innerText = "The "+currentBeast+" killed you...";
+function heroDead() {
+    encounter.innerText = "The " + currentBeast + " killed you...";
     monsterPic.src = "https://66.media.tumblr.com/6909f2f4211105db7ffa8b725f5b74d6/tumblr_o1z100MQBP1tm0tuwo1_500.gif";
     attack.disabled = true;
     heal.disabled = true;
@@ -381,8 +417,8 @@ function heroDead(){
     run.disabled = true;
     plusBtnDisable();
     stringText.style.fontWeight = "bold";
-    stringText.innerText = "GAME OVER\nYour score was "+hero.exp+"\nThanks for playing!";
-    indicator.innerHTML ="";
+    stringText.innerText = "GAME OVER\nYour score was " + hero.exp + "\nThanks for playing!";
+    indicator.innerHTML = "";
     advance.disabled = true;
 
 }
@@ -418,58 +454,59 @@ function hitChance() { //changes the base values of hit and crit depending on th
 
 function onButtonPress() {
     attack.disabled = true; //attack button disabled after press immediately
-    setTimeout(function () {attack.disabled = false;}, delay); //attack button enabled after a timeout based off hero.agi
-    
+    setTimeout(function () {
+        attack.disabled = false;
+    }, delay); //attack button enabled after a timeout based off hero.agi
+
 }
 
 
 
 function swing() {
-   
+
     hitChance();
     unique();
 
     if (getRandom(0, 100) >= critChance) {
         stringText.style.color = "blue";
-        stringText.innerText += ("\nYou critically strike, the " + currentBeast + " for "+(hero.str * 5) * 2.5 + " damage!!");
+        stringText.innerText += ("\nYou critically strike, the " + currentBeast + " for " + (hero.str * 5) * 2.5 + " damage!!");
         console.log((hero.str * 5) * 2.5 + " damage!")
         eval(currentBeast).health -= critHit; // <-------------------------------------- CRITICAL damage to current mob's health
-        
-        if (eval(currentBeast).health <= 0) {    // <------------------------------------- if mob is killed by CRITICAL damage, then---v
-            eval(currentBeast).health = 0;      // does not display minus numbers for health
+
+        if (eval(currentBeast).health <= 0) { // <------------------------------------- if mob is killed by CRITICAL damage, then---v
+            eval(currentBeast).health = 0; // does not display minus numbers for health
             encounter.innerText = "You have slain the " + currentBeast + "!";
-            stringText.style.color = "red"; 
-            stringText.innerText += "\nThe "+currentBeast+" fell to the ground.";
+            stringText.style.color = "red";
+            stringText.innerText += "\nThe " + currentBeast + " fell to the ground.";
             onMobDeath(eval(currentBeast));
             monsterPic.src = "https://easydrawingguides.com/wp-content/uploads/2018/11/Tombstone-10.png"; // displays a gravestone in place of the mob
             attack.disabled = true; // disables 'Attack' button AFTER mob dies
             defend.disabled = true; // disables 'Defend' button AFTER mob dies
-            
+
             run.disabled = true; // disables 'Run' button AFTER mob dies
-        } 
-        
+        }
+
         mobHealth.innerText = eval(currentBeast).health; //updates the mob's health in html document
-        console.log("Rolling... " + getRandom(0, 100));
-        console.log('current crit chance % => ' + (100 - critChance));
-        if (eval(currentBeast).health <= 0) { 
-            
+
+        if (eval(currentBeast).health <= 0) {
+
         }
     } else if (getRandom(0, 100) <= dodgeChance) {
-        stringText.innerText +=("\nYou swung and missed..");
-        console.log("Rolling... " + getRandom(0, 100));
+        stringText.innerText += ("\nYou swung and missed..");
+
 
     } else {
         eval(currentBeast).health -= hero.str * 5; // <-------------------------------------NORMAL damage to current mob's health
         stringText.style.color = "green";
-        stringText.innerText +=("\nYou hit the " + currentBeast+" for "+hero.str * 5 + " damage!");
-        if (eval(currentBeast).health <= 0) {   // <------------------------------------- if mob is killed by NORMAL damage, then---v
-        eval(currentBeast).health = 0; //makes sure no minus figures for health
-        
-        
+        stringText.innerText += ("\nYou hit the " + currentBeast + " for " + hero.str * 5 + " damage!");
+        if (eval(currentBeast).health <= 0) { // <------------------------------------- if mob is killed by NORMAL damage, then---v
+            eval(currentBeast).health = 0; //makes sure no minus figures for health
 
-        encounter.innerText = "You have slain the " + currentBeast + "!";
-        stringText.style.color = "red";
-        stringText.innerText += "\nThe "+currentBeast+" fell to the ground.";
+
+
+            encounter.innerText = "You have slain the " + currentBeast + "!";
+            stringText.style.color = "red";
+            stringText.innerText += "\nThe " + currentBeast + " fell to the ground.";
             onMobDeath(eval(currentBeast));
             monsterPic.src = "https://easydrawingguides.com/wp-content/uploads/2018/11/Tombstone-10.png"; // displays a gravestone in place of the mob
             eval(currentBeast).health = 0
@@ -479,24 +516,20 @@ function swing() {
             run.disabled = true; // disables 'Run' button AFTER mob dies
         }
         mobHealth.innerText = eval(currentBeast).health; // updates mob health in html doc
-        
-        console.log(hero.str * 5 + " damage!"); 
-        console.log("Rolling... " + getRandom(0, 100));
-        
+
+
     }
     attack.disabled = true; //disables 'Attack' button on tap
     if (eval(currentBeast).health !== 0) {
         setTimeout(function () {
             attack.disabled = false;
         }, delay(hero)); //delays 'Attack' button's reuse
-    } 
+    }
 }
 
 
 
-function healing(enemy) {
-    return enemy.wis * 5
-}
+
 
 function delay(hero) {
     return 10000 / hero.agi
@@ -511,10 +544,10 @@ var oldBeast = 0;
 
 function encounterFunc() {
     stringText.innerText = "";
-    
+
     attack.disabled = false; // ENABLES ACTION buttons when button is clicked EXCEPT RESTORE/HEAL until (added later) hero is damaged
     defend.disabled = false;
-    
+
 
     run.disabled = false;
 
@@ -523,83 +556,83 @@ function encounterFunc() {
     if (encounter.innerText.includes("giant")) {
         monsterPic.src = 'https://i.pinimg.com/originals/3d/61/50/3d6150af11ad32eac0b274ef3a16ace8.jpg';
         currentBeast = "giant";
-        giant.health = giant.sta*20;
+        giant.health = giant.sta * 20;
         //do{setInterval(mobAttack(), 10000 / eval(currentBeast))}while(eval(currentBeast).health > 0);
 
         beforeMobHealth.innerText = "<";
-        mobHealth.innerText = eval(currentBeast).health; 
-        mobHealth2.innerText = "/"+eval(currentBeast).maxhealth+">"; 
+        mobHealth.innerText = eval(currentBeast).health;
+        mobHealth2.innerText = "/" + eval(currentBeast).maxhealth + ">";
 
         if (oldBeast == "giant") encounterFunc();
     } else if (encounter.innerText.includes("troll")) {
         monsterPic.src = 'https://i.pinimg.com/736x/fd/49/86/fd4986961fb833a7b3610517cfb104f5.jpg';
         currentBeast = "troll";
-        troll.health = troll.sta*20;
+        troll.health = troll.sta * 20;
 
         beforeMobHealth.innerText = "<";
-        mobHealth.innerText = eval(currentBeast).health; 
-        mobHealth2.innerText = "/"+eval(currentBeast).maxhealth+">";
+        mobHealth.innerText = eval(currentBeast).health;
+        mobHealth2.innerText = "/" + eval(currentBeast).maxhealth + ">";
 
         if (oldBeast == "troll") encounterFunc();
     } else if (encounter.innerText.includes("witch")) {
         monsterPic.src = 'https://historymaniacmegan.files.wordpress.com/2014/09/eve_nip-gwyllion_150986.jpg';
         currentBeast = "witch";
-        witch.health = witch.sta*20;
+        witch.health = witch.sta * 20;
 
         beforeMobHealth.innerText = "<";
-        mobHealth.innerText = eval(currentBeast).health; 
-        mobHealth2.innerText = "/"+eval(currentBeast).maxhealth+">";
-        
+        mobHealth.innerText = eval(currentBeast).health;
+        mobHealth2.innerText = "/" + eval(currentBeast).maxhealth + ">";
+
         if (oldBeast == "witch") encounterFunc();
     } else if (encounter.innerText.includes("orc warrior")) {
         monsterPic.src = 'https://fantasyinmotion.files.wordpress.com/2013/09/492_max.jpg';
         currentBeast = "orc";
-        orc.health = orc.sta*20;
+        orc.health = orc.sta * 20;
 
         beforeMobHealth.innerText = "<";
-        mobHealth.innerText = eval(currentBeast).health; 
-        mobHealth2.innerText = "/"+eval(currentBeast).maxhealth+">";
-        
+        mobHealth.innerText = eval(currentBeast).health;
+        mobHealth2.innerText = "/" + eval(currentBeast).maxhealth + ">";
+
         if (oldBeast == "orc") encounterFunc();
     } else if (encounter.innerText.includes("goblin spearman")) {
         monsterPic.src = 'https://i.redd.it/8hkw7l00kcg21.jpg';
         currentBeast = "goblin";
-        goblin.health = goblin.sta*20;
+        goblin.health = goblin.sta * 20;
 
         beforeMobHealth.innerText = "<";
-        mobHealth.innerText = eval(currentBeast).health; 
-        mobHealth2.innerText = "/"+eval(currentBeast).maxhealth+">";
-        
+        mobHealth.innerText = eval(currentBeast).health;
+        mobHealth2.innerText = "/" + eval(currentBeast).maxhealth + ">";
+
         if (oldBeast == "goblin") encounterFunc();
     } else if (encounter.innerText.includes("bandit")) {
         monsterPic.src = 'https://i.pinimg.com/originals/c6/42/3c/c6423c37fb819522413e7aefdc58ee87.jpg';
         currentBeast = "bandit";
-        bandit.health = bandit.sta*20;
+        bandit.health = bandit.sta * 20;
 
         beforeMobHealth.innerText = "<";
-        mobHealth.innerText = eval(currentBeast).health; 
-        mobHealth2.innerText = "/"+eval(currentBeast).maxhealth+">";
-        
+        mobHealth.innerText = eval(currentBeast).health;
+        mobHealth2.innerText = "/" + eval(currentBeast).maxhealth + ">";
+
         if (oldBeast == "bandit") encounterFunc();
     } else {
         monsterPic.src = 'https://whfb.lexicanum.com/mediawiki/images/thumb/2/2c/Warhammer_Tomb_Kings_Skeletal_Archers.png/300px-Warhammer_Tomb_Kings_Skeletal_Archers.png';
         currentBeast = "archer";
-        archer.health = archer.sta*20;
+        archer.health = archer.sta * 20;
 
         beforeMobHealth.innerText = "<";
-        mobHealth.innerText = eval(currentBeast).health; 
-        mobHealth2.innerText = "/"+eval(currentBeast).maxhealth+">";
-        
+        mobHealth.innerText = eval(currentBeast).health;
+        mobHealth2.innerText = "/" + eval(currentBeast).maxhealth + ">";
+
         if (oldBeast == "archer") encounterFunc();
     }
     oldBeast = currentBeast;
     mobAttackLoop(); //mob attacks after delay although now it is instant and has no delay
-    
+
 }
 //run.addEventListener("click", xpValue); // currently links run button to xp result for current mob
 attack.addEventListener("click", swing); //currently links attack button to direct monster hit and damage
 
-heal.addEventListener("click", firstAid); // Heal button action on progressbar
+heal.addEventListener("click", healUp); // Heal button action on progressbar
 advance.addEventListener("click", encounterFunc); //clicking advance generates random encounter
 addSTR.addEventListener("click", addStrength); //click the "+" below STR to add a strength point to hero and update the corresponding badge
 addSTA.addEventListener("click", addStamina);
@@ -609,10 +642,11 @@ addAGI.addEventListener("click", addAgility);
 function getRandom(min, max) { // creates a random number betwen min and max
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
 function getRandom100() {
-   return Math.floor(Math.random() * 100);
+    return Math.floor(Math.random() * 100);
 }
-var getRandom1002 = Math.floor(Math.random() * 100)+1;
+var getRandom1002 = Math.floor(Math.random() * 100) + 1;
 
 var unique = (function () { // wrap everything in an IIFE
     var arr = []; // the array that contains the possible values
