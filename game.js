@@ -25,6 +25,8 @@ var mobHealth = document.getElementById('mobHealth');
 var mobHealth2 = document.getElementById('mobHealth2');
 var stringText = document.getElementById('stringText');
 var indicator = document.getElementById('indicator');
+var stringBox = document.querySelector('#stringBox');
+stringBox.scrollTop = stringBox.scrollHeight - stringBox.clientHeight; // doesnt work
 //  ---------------------------------------------- ARRAYS for 'encounter' string ----------------------------------------
 var enemy = ["giant", "troll", "witch", "orc warrior", "goblin spearman", "bandit", "skeleton archer"];
 var foundYou = [" watching as you emerge from the undergrowth!", " rustling in the bushes!", " laughing at you from the shadows!", " running from behind!", " approaching!", " lumbering towards you slowly!"];
@@ -35,8 +37,11 @@ var hero = {
     str: 5,
     sta: 5,
     wis: 8,
-    agi: 5
+    agi: 5,
+    shield: false
 };
+var shldHP = hero.sta*8;
+
 var giant = {
     str: 10,
     sta: 10,
@@ -157,6 +162,7 @@ function addStrength() {
 function addStamina() {
     hero.sta += 1;
     stamina.innerText = hero.sta;
+    shldHP = hero.sta*8;
     hero.points -= 1;
     if (hero.points >= 2) {
         heroPoints.innerText = hero.points + " hero points to spend!";
@@ -169,7 +175,7 @@ function addStamina() {
         heroPoints.innerText = "";
         toSpend.innerText = "";
     }
-    console.log(hero.sta);
+    console.log('shield strength is '+shldHP);
 }
 
 function addWisdom() {
@@ -259,7 +265,7 @@ function getReward(mob) {
         hero.level += 1;
         lvlBlink(); // level up text flash
         heroLevel.innerText = " Lvl" + hero.level;
-        hero.points += 1;
+        hero.points += 2;
         plusBtnEnable(); // "+" buttons are enabled on gaining a point
         if (hero.points >= 2) {
             heroPoints.innerText = hero.points + " hero points to spend!";
@@ -317,7 +323,7 @@ function healUp(){
         console.log("active health =>> "+activeHealth);
         if (activeHealth >= 100) {
             activeHealth = 100;
-            console.log(activeHealth)
+            
         }
         activeHealth = (hero.health / (hero.sta * 20)) * 100;
         healthBar.innerText = Math.round(activeHealth) + "%";
@@ -344,7 +350,16 @@ function healUp(){
     }
 }
 
-
+function shieldBlock(){
+    if (hero.shield === true){
+        stringText.innerHTML += "<b>You lower your shield and take an aggressive stance<b><br />";
+        hero.shield = false;
+    } else {
+    stringText.innerHTML += "<b>You raise your shield in a defensive position<b><br />";
+    //add function for shield block hero.health -= (mobattackDamage)/4 and hero attack halved ((hero.str*5)/2)
+    hero.shield = true; // should it be toggle or duration?
+    }
+}
 
 
 
@@ -365,7 +380,7 @@ function mobAttackLoop() {
 
 function mobAttack() {
     if (eval(currentBeast).health <= 0) return;
-    stringText.innerText += ('\nThe ' + currentBeast + ' swings at you..');
+    stringText.innerHTML += ('<small>The ' + currentBeast + ' swings at you..</small>');
     var result = 25 + ((hero.agi * 5) - (eval(currentBeast).agi * 5)); //mob needs to roll above this result to hit hero the higher the harder
     if (result <= 0) result = 0;
     if (getRandom(0, 100) > result) {
@@ -373,11 +388,11 @@ function mobAttack() {
 
 
 
-        stringText.innerText += ('\nThe ' + currentBeast + ' hit you for ' + eval(currentBeast).str * 5 + " damage!");
+        stringText.innerHTML += ('&nbsp;&nbsp;you were <b>hit</b> for <b>' + eval(currentBeast).str * 5 + "</b> damage!<br />");
         heroGotHit();
 
     } else {
-        stringText.innerText += ("\nYou dodged the " + currentBeast + "\'s attack");
+        stringText.innerHTML += ("&nbsp;&nbsp;You <b>dodged</b> the " + currentBeast + "\'s attack<br />");
 
     }
     if (eval(currentBeast).health > 0) {
@@ -463,21 +478,31 @@ function onButtonPress() {
 
 
 function swing() {
-
+    
     hitChance();
     unique();
-
+    
+        
+    
     if (getRandom(0, 100) >= critChance) {
+        if (hero.shield ===true){
+
+            stringText.style.color = "blue";
+            stringText.innerHTML += ("You <b>critically strike</b>, the " + currentBeast + " for <b>" + (hero.str * 2.5) * 2.5 + "</b> damage!!<br />");
+            eval(currentBeast).health -= (hero.str * 2.5) * 2.5;
+
+        } else{
+
         stringText.style.color = "blue";
-        stringText.innerText += ("\nYou critically strike, the " + currentBeast + " for " + (hero.str * 5) * 2.5 + " damage!!");
-        console.log((hero.str * 5) * 2.5 + " damage!")
+        stringText.innerHTML += ("You <b>critically strike</b>, the " + currentBeast + " for <b>" + (hero.str * 5) * 2.5 + "</b> damage!!<br />");
         eval(currentBeast).health -= critHit; // <-------------------------------------- CRITICAL damage to current mob's health
 
+        }
         if (eval(currentBeast).health <= 0) { // <------------------------------------- if mob is killed by CRITICAL damage, then---v
             eval(currentBeast).health = 0; // does not display minus numbers for health
             encounter.innerText = "You have slain the " + currentBeast + "!";
             stringText.style.color = "red";
-            stringText.innerText += "\nThe " + currentBeast + " fell to the ground.";
+            stringText.innerHTML += "The " + currentBeast + " <b>fell to the ground</b>.<br />";
             onMobDeath(eval(currentBeast));
             monsterPic.src = "https://easydrawingguides.com/wp-content/uploads/2018/11/Tombstone-10.png"; // displays a gravestone in place of the mob
             attack.disabled = true; // disables 'Attack' button AFTER mob dies
@@ -492,13 +517,21 @@ function swing() {
 
         }
     } else if (getRandom(0, 100) <= dodgeChance) {
-        stringText.innerText += ("\nYou swung and missed..");
+        stringText.innerHTML += ("<small>You swung and missed..</small><br />");
 
 
     } else {
+        if (hero.shield ===true){
+            eval(currentBeast).health -= hero.str * 2.5;
+            stringText.style.color = "green";
+            stringText.innerHTML += ("You <b>hit</b> the " + currentBeast + " for <b>" + hero.str * 2.5 + "</b> damage!<br />");
+        } else {
+
         eval(currentBeast).health -= hero.str * 5; // <-------------------------------------NORMAL damage to current mob's health
         stringText.style.color = "green";
-        stringText.innerText += ("\nYou hit the " + currentBeast + " for " + hero.str * 5 + " damage!");
+        stringText.innerHTML += ("You <b>hit</b> the " + currentBeast + " for <b>" + hero.str * 5 + "</b> damage!<br />");
+
+        }
         if (eval(currentBeast).health <= 0) { // <------------------------------------- if mob is killed by NORMAL damage, then---v
             eval(currentBeast).health = 0; //makes sure no minus figures for health
 
@@ -506,7 +539,7 @@ function swing() {
 
             encounter.innerText = "You have slain the " + currentBeast + "!";
             stringText.style.color = "red";
-            stringText.innerText += "\nThe " + currentBeast + " fell to the ground.";
+            stringText.innerHTML += "The " + currentBeast + " <b>fell to the ground</b>.<br />";
             onMobDeath(eval(currentBeast));
             monsterPic.src = "https://easydrawingguides.com/wp-content/uploads/2018/11/Tombstone-10.png"; // displays a gravestone in place of the mob
             eval(currentBeast).health = 0
@@ -525,6 +558,9 @@ function swing() {
             attack.disabled = false;
         }, delay(hero)); //delays 'Attack' button's reuse
     }
+
+
+
 }
 
 
@@ -631,7 +667,7 @@ function encounterFunc() {
 }
 //run.addEventListener("click", xpValue); // currently links run button to xp result for current mob
 attack.addEventListener("click", swing); //currently links attack button to direct monster hit and damage
-
+defend.addEventListener("click", shieldBlock); // links block to shieldBlock function
 heal.addEventListener("click", healUp); // Heal button action on progressbar
 advance.addEventListener("click", encounterFunc); //clicking advance generates random encounter
 addSTR.addEventListener("click", addStrength); //click the "+" below STR to add a strength point to hero and update the corresponding badge
