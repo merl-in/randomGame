@@ -88,3 +88,13 @@ function swingConnect(){                                                 //xp ba
     
 }
 
+function getRandom(min, max) { // creates a random number betwen min and max
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+var characterLocation = [" small hut", "n abandoned campfire", " cave set into the rock", " hole in the ground"]
+
+function characterEncounter(){
+console.log( "You approach a"+characterLocation[getRandom(0, 3)]);
+}
+characterEncounter();
